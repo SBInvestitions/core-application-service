@@ -25,7 +25,7 @@ app.use(cors());
 
 secretKey.secret = uuid.v4();
 
-const port = process.env.PORT || 8081;
+const port = 3000;
 //Для отладки const port = process.env.PORT || 8081;
 
 //База для вызова API
