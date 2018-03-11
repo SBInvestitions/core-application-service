@@ -3,8 +3,10 @@ import bodyParser   from 'body-parser';
 import moment       from 'moment';
 import cors from 'cors';
 import uuid  from 'node-uuid';
+import db from './app/servcies/db'
 import secretKey from './app/utils/secretKey'
 import log from './app/utils/log';
+import { resultAPI }   from './app/utils/utils';
 
 import index   from './app/routes/index';
 

@@ -40,6 +40,7 @@
     "winston": "^2.4.0"
   },
   "devDependencies": {
-    "nodemon": "^1.15.1"
+    "nodemon": "^1.15.1",
+    "tunnel-ssh": "^4.1.4"
   }
 }

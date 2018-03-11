@@ -9,7 +9,7 @@ const router = express.Router();
 router.route('/v1/login')
     .post((req, res) => {
         User.findOne({
-            login: req.body.login
+            email: req.body.login
         }, function(err, user) {
 
             if (err) throw err;
@@ -32,7 +32,6 @@ router.route('/v1/login')
                     });
 
                     User.findById(user._id, {password: false, __v: false})
-                        .populate({ path: 'companyId', select: '-__v'})
                         .populate({ path: 'role', select: '-__v'})
                         .exec(function(err, result) {
                             res.json({ token: token, user: result});

@@ -1,0 +1,14 @@
+{ 
+    "_id" : ObjectId("57a1e2afdebf784fa8d20b34"), 
+    "email" : "krapppt@gmail.com",
+    "enabled" : true, 
+    "role" : [
+        ObjectId("575fa4fa87bfa774251a0208")
+    ], 
+    "password" : "$2a$10$k6sN026w0DhkeI6UXyY4tO8lOm.E/e0stiEEdb3bXKi2Hpc1jLscW", 
+    "birthDate" : ISODate("1986-02-20T21:00:00.000+0000"),
+    "surName" : "Test",
+    "secondName" : "Test2",
+    "name" : "KTest",
+    "__v" : NumberInt(0)
+}
