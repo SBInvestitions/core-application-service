@@ -7,7 +7,6 @@ const UserSchema   = new Schema({
     surName: String,
     birthDate: Schema.Types.Date,
     email: { type: String, required: true, trim: true, lowercase: true, index: { unique: true } },
-    login: { type: String, required: true, trim: true, lowercase: true, index: { unique: true } },
     password: { type: String, required: true },
     role: [{type: Schema.Types.ObjectId, ref: 'Role'}],
 });
