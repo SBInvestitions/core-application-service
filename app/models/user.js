@@ -2,7 +2,7 @@ import mongoose, {Schema}   from 'mongoose';
 import bcrypt   from 'bcrypt-nodejs';
 
 const UserSchema   = new Schema({
-    name: { type: String, required: true },
+    name: { type: String },
     secondName: String,
     surName: String,
     birthDate: Schema.Types.Date,

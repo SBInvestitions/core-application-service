@@ -3,3 +3,8 @@
     "name" : "Administrator", 
     "__v" : NumberInt(0)
 }
+{
+    "_id" : ObjectId("575fa4ff87bfa774251a0209"),
+    "name" : "User",
+    "__v" : NumberInt(0)
+},

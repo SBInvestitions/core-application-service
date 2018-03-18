@@ -11,6 +11,7 @@ import { resultAPI }   from './app/utils/utils';
 import index   from './app/routes/index';
 
 import login   from './app/routes/login';
+import register   from './app/routes/register';
 
 const app = express();
 
@@ -29,6 +30,7 @@ const port = process.env.PORT || 8081;
 
 //База для вызова API
 app.use('/api', login);
+app.use('/api', register);
 
 app.use('/api', index);
 
