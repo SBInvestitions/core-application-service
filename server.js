@@ -24,7 +24,7 @@ app.use(bodyParser.json());
 
 app.use(cors());
 
-secretKey.secret = 'TEST';//uuid.v4();
+secretKey.secret = uuid.v4();
 
 const port = 3000;
 //Для отладки const port = process.env.PORT || 8081;
