@@ -114,4 +114,5 @@ typings/
 .next
 
 .gitignore
+config.js
 .idea/

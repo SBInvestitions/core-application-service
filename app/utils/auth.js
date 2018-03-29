@@ -4,7 +4,7 @@ import log from '../utils/log';
 
 export function checkRequest(req, res, next) {
     // check header or url parameters or post parameters for token
-    const token = req.body.token || req.headers['x-access-token'] || req.query.token;
+    const token = req.body.token || req.headers['authorization'] || req.query.token;
     log.info('token '+ token);
     // decode token
     // next();
@@ -12,7 +12,7 @@ export function checkRequest(req, res, next) {
     if (token) {
 
         // verifies secret and checks exp
-        jwt.verify(token, secretKey.secret, function(err, decoded) {
+        jwt.verify(token.replace('Bearer ',''), secretKey.secret, function(err, decoded) {
             if (err) {
                 return res.status(401).send({
                     success: false,

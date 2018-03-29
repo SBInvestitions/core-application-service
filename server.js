@@ -12,6 +12,7 @@ import index   from './app/routes/index';
 
 import login   from './app/routes/login';
 import register   from './app/routes/register';
+import users   from './app/routes/users';
 
 const app = express();
 
@@ -23,7 +24,7 @@ app.use(bodyParser.json());
 
 app.use(cors());
 
-secretKey.secret = uuid.v4();
+secretKey.secret = 'TEST';//uuid.v4();
 
 const port = 3000;
 //Для отладки const port = process.env.PORT || 8081;
@@ -31,6 +32,7 @@ const port = 3000;
 //База для вызова API
 app.use('/api', login);
 app.use('/api', register);
+app.use('/api', users);
 
 app.use('/api', index);
 
