@@ -8,9 +8,9 @@ const router = express.Router();
 
 router.use(checkRequest);
     
-router.route('/v1/users/:user_id')
+router.route('/v1/user')
     .get(function(req, res) {
-      User.findById(req.params.user_id,{__v: false, user: false})
+      User.findById(req.decoded.user.id,{__v: false, password: false, endabled: false})
             .populate({ path: 'role', select: '-__v'})
             .exec(function(err, result) {
                 if (err) {

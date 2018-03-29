@@ -30,9 +30,13 @@ router.route('/v1/login')
                         message: 'Failed to authenticate token.'
                     });
                     }
-
-                    var token = jwt.sign({}, secretKey.secret, {
-                        expiresIn: '24h'
+                    const data = {
+                      user: {
+                        id: user._id
+                      }
+                    };
+                    var token = jwt.sign(data, secretKey.secret, {
+                      expiresIn: '24h',
                     });
 
                     User.findById(user._id, {password: false, __v: false, enabled: false})
