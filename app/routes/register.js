@@ -98,6 +98,6 @@ router.route('/v1/register')
         })
       }
 
-    })
+    });
 
 export default router;
