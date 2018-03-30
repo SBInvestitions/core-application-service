@@ -1,9 +1,9 @@
-import express      from 'express';
-import jwt   from 'jsonwebtoken';
-import User   from '../models/user';
+import express from 'express';
+import jwt from 'jsonwebtoken';
+import User from '../models/user';
 import Role from '../models/role';
 import secretKey from '../utils/secretKey'
-import bcrypt       from 'bcrypt-nodejs';
+import bcrypt from 'bcrypt-nodejs';
 
 const router = express.Router();
 

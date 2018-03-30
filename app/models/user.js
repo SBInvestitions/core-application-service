@@ -1,7 +1,7 @@
 import mongoose, {Schema}   from 'mongoose';
 import bcrypt   from 'bcrypt-nodejs';
 
-const UserSchema   = new Schema({
+const UserSchema = new Schema({
     name: { type: String },
     secondName: String,
     surName: String,

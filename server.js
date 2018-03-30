@@ -6,13 +6,14 @@ import uuid  from 'node-uuid';
 import db from './app/servcies/db'
 import secretKey from './app/utils/secretKey'
 import log from './app/utils/log';
-import { resultAPI }   from './app/utils/utils';
+import { resultAPI } from './app/utils/utils';
 
-import index   from './app/routes/index';
+import index from './app/routes/index';
 
-import login   from './app/routes/login';
-import register   from './app/routes/register';
-import users   from './app/routes/users';
+import login from './app/routes/login';
+import register from './app/routes/register';
+import users from './app/routes/users';
+import rates from './app/routes/rates';
 
 const app = express();
 
@@ -24,7 +25,7 @@ app.use(bodyParser.json());
 
 app.use(cors());
 
-secretKey.secret = uuid.v4();
+secretKey.secret = 'test'; // uuid.v4();
 
 const port = 3000;
 //Для отладки const port = process.env.PORT || 8081;
@@ -33,7 +34,7 @@ const port = 3000;
 app.use('/api', login);
 app.use('/api', register);
 app.use('/api', users);
-
+app.use('/api', rates);
 app.use('/api', index);
 
 app.use(function(req, res, next){
