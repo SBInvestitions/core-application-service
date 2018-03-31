@@ -1,5 +1,6 @@
 import express from 'express';
 import Wallet from '../models/wallet';
+import generateWallet from './../servcies/walletService';
 
 const router = express.Router();
 
@@ -105,5 +106,7 @@ router.route('/v1/wallet').delete(async (req, res) => {
     res.send(e);
   }
 });
+
+router.route('/v1/wallet/generate').post(generateWallet);
 
 export default router;
