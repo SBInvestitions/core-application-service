@@ -14,6 +14,7 @@ import login from './app/routes/login';
 import register from './app/routes/register';
 import users from './app/routes/users';
 import rates from './app/routes/rates';
+import wallet from './app/routes/wallet';
 
 const app = express();
 
@@ -34,6 +35,7 @@ const port = 3000;
 app.use('/api', login);
 app.use('/api', register);
 app.use('/api', users);
+app.use('/api', wallet);
 app.use('/api', rates);
 app.use('/api', index);
 

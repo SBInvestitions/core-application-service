@@ -1,9 +1,12 @@
 import mongoose, {Schema}   from 'mongoose';
 const q = require('q');
+const walletTypes = ['int', 'ext'];
 
 const walletSchema = new Schema({
-  address: String,
+  address: { type: String },
   userId: { type: String },
+  type: { type: String, enum: walletTypes, default: walletTypes[1] },
+  privateKey: { type: String },
 });
 
 //To use our schema definition, we need to convert our schema into a Model we can work with
@@ -28,6 +31,25 @@ walletModel.get = function(skip, limit){
   return results.promise;
 };
 
+walletModel.getByUser = function (userId) {
+  var results = q.defer();
+  if(!userId){
+    results.reject({ status:'error', error:'Wallet userId not supplied.' });
+  }
+  Wallet.findOne({ userId: userId }, function(err, dbWallet) {
+    if (err){
+      results.reject(err);
+    }
+
+    if(dbWallet){
+      results.resolve(dbWallet);
+    } else{
+      results.resolve([]);
+    }
+  });
+  return results.promise;
+};
+
 // Get single wallet by its address.
 walletModel.getOne = function(address){
   var results = q.defer();
@@ -43,7 +65,7 @@ walletModel.getOne = function(address){
     if(dbWallet){
       results.resolve(dbWallet);
     } else{
-      results.reject({status:'error', error:'Invalid wallet address supplied.'});
+      results.resolve(null);
     }
   });
   return results.promise;
@@ -75,21 +97,19 @@ walletModel.insertOne = function(wallet){
 };
 
 // update wallets
-walletModel.updateOne = function(wallet) {
+walletModel.updateOne = function(walletAddress) {
   var results = q.defer();
-  var error = checkInputError(wallet);
-
+  var error = checkInputError(walletAddress);
   if(error){
     results.reject({ status:'error', error:error });
   }
-
   // find and update wallet
   if(!error) {
-    Wallet.findOne({ address: wallet.address}, function (err, dbWallet) {
+    Wallet.findOne({ address: walletAddress }, function (err, dbWallet) {
       if (err) {
         return results.reject(err);
       }
-      for (let k in dbWallet) dbWallet[k] = dbWallet[k];
+      dbWallet.address = walletAddress;
       dbWallet.save();
       results.resolve(dbWallet);
     });
@@ -109,7 +129,7 @@ walletModel.delete = function(address){
     error = true;
   }
   if(!error){
-    console.log(address);
+    console.log('deleting ', address);
     Wallet.findOne({ address:address }, function(err, dbWallet) {
       if (err){
         results.reject(err);
