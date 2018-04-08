@@ -40,6 +40,11 @@ router.route('/v1/news/:newsId').get(async (req, res) => {
 // controller that add single article fetch request.
 router.route('/v1/news').post(async (req, res) => {
   try {
+    const decoded = req.decoded;
+    console.log('decoded = ', decoded);
+    if (!decoded || !decoded.user || decoded.user.role.name !== 'admin' || decoded.user.role.name !== 'redactor') {
+      return;
+    }
     const article = req.body;
     const articlesData = newsModel.insertOne(article);
     var response = {};
@@ -56,6 +61,11 @@ router.route('/v1/news').post(async (req, res) => {
 // controller that update single article fetch request.
 router.route('/v1/news').put(async (req, res) => {
   try {
+    const decoded = req.decoded;
+    console.log('decoded = ', decoded);
+    if (!decoded || !decoded.user || decoded.user.role.name !== 'admin' || decoded.user.role.name !== 'redactor') {
+      return;
+    }
     const article = req.body;
     const articlesData = newsModel.updateOne(article);
     var response = {};
@@ -71,6 +81,11 @@ router.route('/v1/news').put(async (req, res) => {
 
 router.route('/v1/news/:newsId').delete(async (req, res) => {
   try {
+    const decoded = req.decoded;
+    console.log('decoded = ', decoded);
+    if (!decoded || !decoded.user || decoded.user.role.name !== 'admin' || decoded.user.role.name !== 'redactor') {
+      return;
+    }
     const articleId = req.query.newsId;
     const articlesData = newsModel.delete(articleId);
     const response = {};
