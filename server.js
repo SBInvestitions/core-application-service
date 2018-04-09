@@ -16,6 +16,7 @@ import users from './app/routes/users';
 import rates from './app/routes/rates';
 import wallet from './app/routes/wallet';
 import news from './app/routes/news';
+import { sendEmail } from './app/utils/mailer';
 
 const app = express();
 
@@ -24,11 +25,9 @@ moment().format("L");
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-
 app.use(cors());
 
 secretKey.secret = 'test'; // uuid.v4();
-
 const port = 3000;
 //Для отладки const port = process.env.PORT || 8081;
 

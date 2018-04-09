@@ -100,4 +100,38 @@ router.route('/v1/register')
 
     });
 
+router.route('/v1/register/confirm')
+  .post((req, res) => {
+    if (!req.body.confirmationString) {
+      return res.status(500).send({
+        success: false,
+        message: 'Confirmation string is required.'
+      });
+    } else if (!req.body.newPassword) {
+      return res.status(500).send({
+        success: false,
+        message: 'Email is required.'
+      });
+    }
+    else {
+      bcrypt.hash(req.body.password, bcrypt.genSaltSync(SALT_WORK_FACTOR), null, function (err, hash) {
+        if (err) {
+          log.error('Error on create hash password for user: %s', req.body.email);
+          res.statusCode = 500;
+          return res.send(resultAPI(err, 500, err.message));
+        }
+
+        User.findOne({
+          email: req.body.email
+        }, function (err, dbUser) {
+          if (dbUser.confirmationString && dbUser.confirmationString.length > 0 && dbUser.confirmationString === req.body.confirmationString) {
+            dbUser.password = hash;
+            dbUser.confirmed = true;
+            return res.status(201).json(resultAPI('confirmed'));
+          }
+        });
+      });
+    }
+  });
+
 export default router;

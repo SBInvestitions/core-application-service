@@ -1,9 +1,10 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import User from '../models/user';
-import Role from '../models/role';
+import {resultAPI}   from '../utils/utils';
 import secretKey from '../utils/secretKey'
 import bcrypt from 'bcrypt-nodejs';
+import { sendRecoverEmail } from './../utils/mailer';
 
 const router = express.Router();
 
@@ -50,5 +51,51 @@ router.route('/v1/login')
         });
 
     });
+
+router.route('/v1/login/restore')
+  .post((req, res) => {
+    if (!req.body.confirmationString) {
+      return res.status(500).send({
+        success: false,
+        message: 'Email is required.'
+      });
+    } else if (!req.body.email) {
+      return res.status(500).send({
+        success: false,
+        message: 'Password is required.'
+      });
+    }
+    User.findOne({
+      email: req.body.email
+    }, function (err, dbUser) {
+      const data = {
+        user: {
+          id: dbUser._id
+        }
+      };
+      var token = jwt.sign(data, secretKey.secret, {
+        expiresIn: '24h',
+      });
+      User.confirmationString = token;
+      User.save(function(err) {
+        if (err) {
+          return res.status(500).send({
+            success: false,
+            message: 'User save failed.'
+          });
+        } else {
+          sendRecoverEmail(token, dbUser.email).then((status) => {
+            if (!status) {
+              return res.status(500).send({
+                success: false,
+                message: 'Email send failed.'
+              });
+            }
+            return res.status(201).json(resultAPI('email was sent'));
+          });
+        }
+      });
+    })
+  });
 
 export default router;
