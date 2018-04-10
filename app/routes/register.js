@@ -100,7 +100,7 @@ router.route('/v1/register')
 
     });
 
-router.route('/v1/register/confirm')
+router.route('/v1/confirm')
   .post((req, res) => {
     if (!req.body.confirmationString) {
       return res.status(500).send({

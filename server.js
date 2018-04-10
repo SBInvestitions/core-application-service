@@ -12,6 +12,7 @@ import index from './app/routes/index';
 
 import login from './app/routes/login';
 import register from './app/routes/register';
+import confirm from './app/routes/confirm';
 import users from './app/routes/users';
 import rates from './app/routes/rates';
 import wallet from './app/routes/wallet';
@@ -34,6 +35,7 @@ const port = 3000;
 //База для вызова API
 app.use('/api', login);
 app.use('/api', register);
+app.use('/api', confirm);
 app.use('/api', users);
 app.use('/api', wallet);
 app.use('/api', rates);
