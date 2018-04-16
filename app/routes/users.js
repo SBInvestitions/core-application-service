@@ -10,7 +10,8 @@ router.use(checkRequest);
     
 router.route('/v1/user')
     .get(function(req, res) {
-      User.findById(req.decoded.user.id,{__v: false, password: false, endabled: false})
+      console.log('req.decoded.user.id', req.decoded.user.id);
+      User.findById(req.decoded.user.id,{__v: false, password: false })
             .populate({ path: 'role', select: '-__v'})
             .exec(function(err, result) {
                 if (err) {
@@ -18,8 +19,13 @@ router.route('/v1/user')
                     res.statusCode = 500;
                     return res.send(resultAPI(err, 500, err.message));
                 } else {
-                    log.info(`Return user: ${result.email}`);
-                    return res.json(resultAPI(result));
+                  if (!result) {
+                    res.statusCode = 500;
+                    return res.send(resultAPI('no user found'));
+                  }
+                  console.log('result', result);
+                  log.info(`Return user: ${result.email}`);
+                  return res.json(resultAPI(result));
                 }
             });
     });

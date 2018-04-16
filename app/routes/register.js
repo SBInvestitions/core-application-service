@@ -1,11 +1,12 @@
 import express from 'express';
 import bcrypt from 'bcrypt-nodejs';
+import jwt from "jsonwebtoken";
 import Role from '../models/role';
 import User from '../models/user';
 import log from '../utils/log';
 import {resultAPI}   from '../utils/utils';
 import secretKey from "../utils/secretKey";
-import jwt from "jsonwebtoken";
+import { sendRegisterEmail } from './../utils/mailer';
 
 const SALT_WORK_FACTOR = 10;
 const router = express.Router();
@@ -37,7 +38,7 @@ router.route('/v1/register')
           Role.find({'name': 'User'}, function(err, Roles){
             if (err) {
               res.statusCode = 404;
-              log.error('Role not found: %s',req.body.role);
+              log.error('Role not found: %s Группа не найдена',req.body.role);
               return res.send(resultAPI(req.body.role, 404, 'Not found'));
             } else {
               if (!Roles) {
@@ -52,10 +53,10 @@ router.route('/v1/register')
                   if (err) throw err;
 
                   if (user) {
-                    log.info('User is created: %s', req.body.email);
+                    log.info('User is created: %s Пользователь уже был создан', req.body.email);
                     return res.status(500).send({
                       success: false,
-                      message: 'User already exists'
+                      message: 'User with same email address already exists. Пользователь с таким email уже существует'
                     });
                   } else if (!user) {
                     const userInfo = {
@@ -66,11 +67,11 @@ router.route('/v1/register')
                       'email': req.body.email,
                       'password': hash,
                       'role': Roles[0],
-                      'enabled': req.body.enabled
+                      'confirmed': false,
                     };
                     const newUser = new User(userInfo);
 
-                    newUser.save(function(err) {
+                    newUser.save(function(err, dbUser) {
                       if (err) {
                         if (err.name === 'ValidationError') {
                           res.statusCode = 400;
@@ -81,13 +82,28 @@ router.route('/v1/register')
                         }
                         log.error('Internal error(%d): %s', res.statusCode, err.message);
                       } else {
+                        console.log('dbUser', dbUser);
                         log.info('Pole is created: %s', req.body.name);
+                        const data = {
+                          email: req.body.email,
+                        };
+                        // send email with confirmation string
+                        const key = jwt.sign(data, secretKey.secret);
+                        sendRegisterEmail(key, req.body.email);
+                        const tokenData = {
+                          user: {
+                            id: dbUser._id
+                          }
+                        };
+                        var token = jwt.sign(tokenData, secretKey.secret, {
+                          expiresIn: '24h',
+                        });
                         delete userInfo.password;
                         delete userInfo.enabled;
                         delete userInfo.birthDate;
                         delete userInfo.surName;
                         userInfo.role = Roles[0].name;
-                        return res.status(201).json(resultAPI(userInfo));
+                        return res.status(201).json({ token: token, user: userInfo });
                       }
                     })
                   }
@@ -97,41 +113,6 @@ router.route('/v1/register')
           })
         })
       }
-
     });
-
-router.route('/v1/confirm')
-  .post((req, res) => {
-    if (!req.body.confirmationString) {
-      return res.status(500).send({
-        success: false,
-        message: 'Confirmation string is required.'
-      });
-    } else if (!req.body.newPassword) {
-      return res.status(500).send({
-        success: false,
-        message: 'Email is required.'
-      });
-    }
-    else {
-      bcrypt.hash(req.body.password, bcrypt.genSaltSync(SALT_WORK_FACTOR), null, function (err, hash) {
-        if (err) {
-          log.error('Error on create hash password for user: %s', req.body.email);
-          res.statusCode = 500;
-          return res.send(resultAPI(err, 500, err.message));
-        }
-
-        User.findOne({
-          email: req.body.email
-        }, function (err, dbUser) {
-          if (dbUser.confirmationString && dbUser.confirmationString.length > 0 && dbUser.confirmationString === req.body.confirmationString) {
-            dbUser.password = hash;
-            dbUser.confirmed = true;
-            return res.status(201).json(resultAPI('confirmed'));
-          }
-        });
-      });
-    }
-  });
 
 export default router;

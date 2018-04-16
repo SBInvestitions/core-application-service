@@ -9,8 +9,8 @@ const UserSchema = new Schema({
     email: { type: String, required: true, trim: true, lowercase: true, index: { unique: true } },
     password: { type: String, required: true },
     role: [{type: Schema.Types.ObjectId, ref: 'Role'}],
-    confirmed: false,
-    confirmationString: String,
+    confirmed: Boolean,
+    confirmationString: { type: String, required: false },
 });
 
 UserSchema.methods.generateHash = function(password) {

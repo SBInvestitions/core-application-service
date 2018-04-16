@@ -10,7 +10,6 @@ export function checkRequest(req, res, next) {
     // next();
     // return;
     if (token) {
-
         // verifies secret and checks exp
         jwt.verify(token.replace('Bearer ',''), secretKey.secret, function(err, decoded) {
             if (err) {

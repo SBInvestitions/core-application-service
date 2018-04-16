@@ -7,7 +7,6 @@ const router = express.Router();
 router.route('/v1/wallet').get(async (req, res) => {
   try {
     const decoded = req.decoded;
-    console.log('decoded = ', decoded);
     if (decoded && decoded.user) {
       const user = decoded.user;
       let walletData = await Wallet.getByUser(user.id);
