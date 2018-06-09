@@ -20,8 +20,6 @@ walletModel.get = function(skip, limit){
   var results = q.defer();
   skip = parseInt(skip) || 0;
   limit = parseInt(limit) || 999999999;
-  console.log('walletModel');
-
   Wallet.find({}, function(err, dbWallet) {
     if (err){
       results.reject(err);
@@ -74,63 +72,49 @@ walletModel.getOne = function(address){
 // Insert wallet into database
 walletModel.insertOne = function(wallet){
   var results = q.defer();
-  var error = checkInputError(wallet);
-  if(error){
-    results.reject({ status:'error', error:error });
-  }
   var wallets = [];
   // Insert wallets
-  if(!error){
-    wallets.push(wallet);
-    Wallet.collection.insert(wallets, function(err, dbWallet) {
-      if(err){
-        console.log('error occured in populating database');
-        console.log(err);
-      }
-      else{
-        // console.log('wallet inserted');
-        results.resolve(dbWallet);
-      }
-    });
-  }
+  wallets.push(wallet);
+  Wallet.collection.insert(wallets, function(err, dbWallet) {
+    if(err){
+      console.log('error occured in populating database');
+      console.log(err);
+    }
+    else{
+      // console.log('wallet inserted');
+      results.resolve(dbWallet);
+    }
+  });
   return results.promise;
 };
 
 // update wallets
-walletModel.updateOne = function(walletAddress) {
+walletModel.updateOne = function(walletAddress, userId) {
   var results = q.defer();
-  var error = checkInputError(walletAddress);
-  if(error){
-    results.reject({ status:'error', error:error });
+  if(!userId || !walletAddress){
+    results.reject({ status:'error', error:'Wallet or userId not supplied.' });
   }
-  // find and update wallet
-  if(!error) {
-    Wallet.findOne({ address: walletAddress }, function (err, dbWallet) {
-      if (err) {
-        return results.reject(err);
-      }
-      dbWallet.address = walletAddress;
-      dbWallet.save();
-      results.resolve(dbWallet);
-    });
-  }
-  else{
-    results.reject(err);
-  }
+  Wallet.findOne({ userId: userId }, function(err, dbWallet) {
+    if (err) {
+      return results.reject(err);
+    }
+    dbWallet.address = walletAddress;
+    dbWallet.save();
+    results.resolve(dbWallet);
+  });
   return results.promise;
 };
 
 //delete wallet
-walletModel.delete = function(address){
+walletModel.delete = function(userId){
   var results = q.defer();
   var error = false;
-  if(!address){
-    results.reject({ status:'error', error:error });
+  if(!userId){
+    results.reject({ status:'error', error:'Wallet or userId not supplied.' });
     error = true;
   }
   if(!error){
-    console.log('deleting ', address);
-    Wallet.findOne({ address:address }, function(err, dbWallet) {
+    Wallet.findOne({ userId: userId }, function(err, dbWallet) {
       if (err){
         results.reject(err);
       }

@@ -32,8 +32,9 @@ router.route('/v1/wallet').post(async (req, res) => {
       });
     } else {
       const address = req.body.address;
-      let walletData = await Wallet.getOne(address);
-      if (walletData) {
+      const user = decoded.user;
+      let walletData = await Wallet.getByUser(user.id);
+      if (walletData && walletData.length > 0) {
         res.status(200).send({walletData});
       } else {
         const user = decoded.user;
@@ -57,6 +58,7 @@ router.route('/v1/wallet').post(async (req, res) => {
 router.route('/v1/wallet').put(async (req, res) => {
   try {
     const decoded = req.decoded;
+
     if (!req.body.address || !decoded || !decoded.user) {
       return res.status(500).send({
         success: false,
@@ -64,7 +66,8 @@ router.route('/v1/wallet').put(async (req, res) => {
       });
     } else {
       const address = req.body.address;
-      let walletData = await Wallet.updateOne(address);
+      const user = decoded.user;
+      let walletData = await Wallet.updateOne(address, user.id);
       if (walletData) {
         res.status(200).send({walletData});
       } else {
@@ -83,14 +86,14 @@ router.route('/v1/wallet').put(async (req, res) => {
 router.route('/v1/wallet').delete(async (req, res) => {
   try {
     const decoded = req.decoded;
-    if (!req.body.address || !decoded || !decoded.user) {
+    if (!decoded || !decoded.user) {
       return res.status(500).send({
         success: false,
-        message: 'Address is required.'
+        message: 'user is required.'
       });
     } else {
-      const address = req.body.address;
-      let walletData = await Wallet.delete(address);
+      const user = decoded.user;
+      let walletData = await Wallet.delete(user.id);
       if (walletData) {
         res.status(200).send('deleted');
       } else {
