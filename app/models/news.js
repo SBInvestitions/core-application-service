@@ -1,7 +1,7 @@
 import mongoose, {Schema} from 'mongoose';
 import q from 'q';
 
-//defining schema for articles table
+//defining schema for news table
 
 const newsSchema = new Schema({
   name: { type: String },
@@ -29,25 +29,26 @@ const News = mongoose.model('news', newsSchema);
 //Initlizing interface object of this model.
 const newsModel = {};
 
-//function to get articles listings
+//function to get news listings
 newsModel.get = function(skip, limit, isDeleted){
   const results = q.defer();
   skip = parseInt(skip) || 0;
   limit = parseInt(limit) || 30;
-  News.find({ 'isDeleted': isDeleted }, function(err, dbArticles) {
+  News.find({ 'isDeleted': isDeleted }, function(err, dbNews) {
     if (err){
       results.reject(err);
     }
-    results.resolve(dbArticles);
+    results.resolve(dbNews);
   }).skip(skip).limit(limit);
   return results.promise;
 };
 
-//function to get single video by its id.
+// function to get single news by its id.
+
 newsModel.getOne = function(id){
   const results = q.defer();
   if(!id){
-    results.reject({ status:'error', error:'Article Id not supplied.' });
+    results.reject({ status:'error', error:'News Id not supplied.' });
   }
   News.findOne({ _id: id }, function(err, dbNews) {
     if (err){
@@ -57,20 +58,20 @@ newsModel.getOne = function(id){
     if(dbNews){
       results.resolve(dbNews);
     } else{
-      results.reject({status:'error', error:'Invalid article Id supplied.'});
+      results.reject({status:'error', error:'Invalid news Id supplied.'});
     }
   });
   return results.promise;
 };
 
-//Insert article into database
+//Insert news into database
 newsModel.insertOne = function(article, user){
   const results = q.defer();
   const error = checkArticleError(article);
   if(error){
     results.reject({ status:'error', error:error });
   }
-  const articles = [];
+  const news = [];
   //Добавляем статью
   if(!error){
     const newArticle = {
@@ -92,8 +93,8 @@ newsModel.insertOne = function(article, user){
       userModifiedId: user.id,
       isDeleted: false,
     };
-    articles.push(newArticle);
-    News.collection.insert(articles, function(err, dbNews) {
+    news.push(newArticle);
+    News.collection.insert(news, function(err, dbNews) {
       if(err){
         console.log('error occured in populating database');
         console.log(err);
