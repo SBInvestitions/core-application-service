@@ -16,7 +16,7 @@ router.route('/v1/subscribe').post(async (req, res) => {
     } else {
       const email = req.body.email;
       const dbSubscriber = await subscribersEmailsModel.insertOne(email);
-      res.status(200).send("inserted");
+      res.status(200).send(dbSubscriber);
     }
   } catch(e) {
     console.log('error while adding subscriber email', e);
