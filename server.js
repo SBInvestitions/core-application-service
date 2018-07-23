@@ -13,6 +13,7 @@ import index from './app/routes/index';
 import login from './app/routes/login';
 import register from './app/routes/register';
 import confirm from './app/routes/confirm';
+import subscribers from './app/routes/subscribers';
 import users from './app/routes/users';
 import rates from './app/routes/rates';
 import wallet from './app/routes/wallet';
@@ -40,6 +41,7 @@ app.use('/api', wallet);
 app.use('/api', rates);
 app.use('/api', index);
 app.use('/api', news);
+app.use('/api', subscribers);
 
 app.use(function(req, res, next){
     log.error('Not found URL: %s',req.url);
