@@ -65,7 +65,11 @@ subscribersEmailsModel.insertOne = function(email){
     if (dbEmail) {
       results.resolve(dbEmail);
     } else {
-      emails.push(email);
+      const newEmail = {
+        email: email,
+        dateCreate: new Date(),
+      };
+      emails.push(newEmail);
       SubscribersEmails.collection.insert(emails, function(err, dbWallet) {
         if(err){
           console.log('error occured in populating database');
