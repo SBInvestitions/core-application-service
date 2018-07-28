@@ -9,7 +9,7 @@ const subscriberEmail = new Schema({
 });
 
 //To use our schema definition, we need to convert our blogSchema into a Model we can work with
-const subscribersEmails = mongoose.model('subscribersEmails', subscriberEmail);
+const SubscribersEmails = mongoose.model('subscribersEmails', subscriberEmail);
 
 //Initlizing interface object of this model.
 const subscribersEmailsModel = {};
@@ -19,7 +19,7 @@ subscribersEmailsModel.getOne = function(email){
   if(!email){
     results.reject({ status:'error', error:'Email not supplied.' });
   }
-  subscribersEmails.findOne({ email: email }, function(err, dbEmail) {
+  SubscribersEmails.findOne({ email: email }, function(err, dbEmail) {
     if (err){
       results.reject(err);
     }
@@ -37,7 +37,7 @@ subscribersEmailsModel.getOne = function(email){
 subscribersEmailsModel.insertOne = function(email){
   const results = q.defer();
   const emails = [];
-  subscribersEmailsModel.getOne(email).then((res) => {
+  /*subscribersEmailsModel.getOne(email).then((res) => {
     results.resolve(res);
   }, (err) => {
     //Добавляем статью
@@ -54,6 +54,26 @@ subscribersEmailsModel.insertOne = function(email){
         }
         else{
           results.resolve(dbEmail);
+        }
+      });
+    }
+  });*/
+  SubscribersEmails.findOne({ email: email }, function(err, dbEmail) {
+    if(err){
+      return results.reject(err);
+    }
+    if (dbEmail) {
+      results.resolve(dbEmail);
+    } else {
+      emails.push(email);
+      SubscribersEmails.collection.insert(emails, function(err, dbWallet) {
+        if(err){
+          console.log('error occured in populating database');
+          console.log(err);
+        }
+        else{
+          // console.log('wallet inserted');
+          results.resolve(dbWallet);
         }
       });
     }
