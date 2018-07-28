@@ -7,7 +7,7 @@ router.use(checkRequest);
 
 router.use(function(req, res, next) {
     // do logging
-    log.debug('API request excuted: %s',req.originalUrl);
+    log.debug('API request excuted: %s', req.originalUrl);
     next(); //следующий обработчик по цепочке
 });
 

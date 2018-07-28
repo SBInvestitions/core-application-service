@@ -5,7 +5,7 @@ import log from '../utils/log';
 export function checkRequest(req, res, next) {
     // check header or url parameters or post parameters for token
     const token = req.body.token || req.headers['authorization'] || req.query.token;
-    log.info('token '+ token);
+    log.info('token '+ token, 'req', req.url);
     // decode token
     // next();
     // return;
@@ -26,12 +26,15 @@ export function checkRequest(req, res, next) {
 
     } else {
         // if there is no token
-        // return an error
-        return res.status(401).send({
-            success: false,
-            message: 'No token provided.'
-        });
-
+        if (req.url === '/v1/subscribe') {
+            next();
+        } else {
+            // return an error
+            return res.status(401).send({
+                success: false,
+                message: 'No token provided.'
+            });
+        }
     }
 
 } 

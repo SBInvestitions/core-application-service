@@ -1,5 +1,7 @@
 import express from 'express';
 import subscribersEmailsModel from './../models/subscribersEmails';
+import { resultAPI }   from '../utils/utils';
+import { sendSubscribeEmail } from './../utils/mailer';
 
 const router = express.Router();
 
@@ -15,8 +17,23 @@ router.route('/v1/subscribe').post(async (req, res) => {
       });
     } else {
       const email = req.body.email;
-      const dbSubscriber = await subscribersEmailsModel.insertOne(email);
-      res.status(200).send(dbSubscriber);
+      const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/; // eslint-disable-line
+      if (typeof email === 'string' && re.test(email)) {
+        const dbSubscriber = await subscribersEmailsModel.insertOne(email);
+        sendSubscribeEmail(dbSubscriber, email);
+        if (!dbSubscriber) {
+          return res.status(500).send({
+            success: false,
+            message: 'Email send failed.'
+          });
+        }
+        return res.status(201).json(resultAPI('email was sent'));
+      } else {
+        return res.status(500).send({
+          success: false,
+          message: 'Email is not valid.'
+        });
+      }
     }
   } catch(e) {
     console.log('error while adding subscriber email', e);
