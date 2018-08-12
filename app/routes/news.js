@@ -1,18 +1,18 @@
 import express from 'express';
-import newsModel from './../models/news';
+import articlesModel from './../models/news';
 
 const router = express.Router();
 
 // controller that handles news listings fetch request.
-router.route('/v1/news').get(async (req, res) => {
+router.route('/v1/articles').get(async (req, res) => {
   try {
     const skip = req.query.skip;
     const limit = req.query.limit;
     const isDeleted = req.query.isDeleted;
-    const newsData = await newsModel.get(skip, limit, isDeleted);
-    var response = {};
+    const articlesData = await articlesModel.get(skip, limit, isDeleted);
+    const response = {};
     response.status = 'success';
-    response.data = newsData;
+    response.data = articlesData;
     res.send(response);
   } catch(e) {
     console.log('error while getting news!', e);
@@ -25,8 +25,8 @@ router.route('/v1/news').get(async (req, res) => {
 router.route('/v1/news/:newsId').get(async (req, res) => {
   try {
     const articleId = req.query.newsId;
-    const articleData = await newsModel.getOne(articleId);
-    var response = {};
+    const articleData = await articlesModel.getOne(articleId);
+    const response = {};
     response.status = 'success';
     response.data = articleData;
     res.send(response);
@@ -46,8 +46,8 @@ router.route('/v1/news').post(async (req, res) => {
       return;
     }
     const article = req.body;
-    const articlesData = newsModel.insertOne(article);
-    var response = {};
+    const articlesData = articlesModel.insertOne(article);
+    const response = {};
     response.status = 'success';
     response.data = articlesData;
     res.send(response);
@@ -67,8 +67,8 @@ router.route('/v1/news').put(async (req, res) => {
       return;
     }
     const article = req.body;
-    const articlesData = newsModel.updateOne(article);
-    var response = {};
+    const articlesData = articlesModel.updateOne(article);
+    const response = {};
     response.status = 'success';
     response.data = articlesData;
     res.send(response);
@@ -87,7 +87,7 @@ router.route('/v1/news/:newsId').delete(async (req, res) => {
       return;
     }
     const articleId = req.query.newsId;
-    const articlesData = newsModel.delete(articleId);
+    const articlesData = articlesModel.delete(articleId);
     const response = {};
     response.status = 'success';
     response.data = articlesData;

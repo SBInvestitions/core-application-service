@@ -11,6 +11,7 @@ const UserSchema = new Schema({
     role: [{type: Schema.Types.ObjectId, ref: 'Role'}],
     confirmed: Boolean,
     confirmationString: { type: String, required: false },
+    userImg: String,
 });
 
 UserSchema.methods.generateHash = function(password) {
