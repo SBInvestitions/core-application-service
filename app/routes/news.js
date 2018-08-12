@@ -4,7 +4,7 @@ import articlesModel from './../models/news';
 const router = express.Router();
 
 // controller that handles news listings fetch request.
-router.route('/v1/articles').get(async (req, res) => {
+router.route('/v1/news').get(async (req, res) => {
   try {
     const skip = req.query.skip;
     const limit = req.query.limit;
@@ -22,9 +22,9 @@ router.route('/v1/articles').get(async (req, res) => {
 });
 
 // controller that handles single article fetch request.
-router.route('/v1/news/:newsId').get(async (req, res) => {
+router.route('/v1/news/:articleId').get(async (req, res) => {
   try {
-    const articleId = req.query.newsId;
+    const articleId = req.query.articleId;
     const articleData = await articlesModel.getOne(articleId);
     const response = {};
     response.status = 'success';

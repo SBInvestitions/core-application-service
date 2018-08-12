@@ -92,10 +92,10 @@ articlesModel.insertOne = function(article){
     article.mainImgId = '';
     article.sequence = '1'; //for long posts to order by this
     article.ratings = [];
-    article.commentsTreeId = 1;
+    article.commentsTreeId = null;
     article.dateCreate = { type: Date, default: Date.now };
     article.dateModified = { type: Date, default: Date.now };
-    article.userModified = 1;
+    article.userModified = user._id;
     article.isDeleted = false;
 
     articles.push(article);
