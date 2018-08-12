@@ -14,6 +14,31 @@ const UserSchema = new Schema({
     userImg: String,
 });
 
+const User = mongoose.model('wallets', UserSchema);
+const userModel = {};
+
+
+// Get single wallet by its address.
+userModel.getOne = function(userId){
+  console.log('userModel get one', user);
+  const results = q.defer();
+  if(!userId){
+    results.reject({ status:'error', error:'User address not supplied.' });
+  }
+  User.findOne({ _id: userId }, function(err, dbUser) {
+    if (err){
+      results.reject(err);
+    }
+
+    if(dbUser){
+      results.resolve(dbUser);
+    } else{
+      results.resolve(null);
+    }
+  });
+  return results.promise;
+};
+
 UserSchema.methods.generateHash = function(password) {
     return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
 };

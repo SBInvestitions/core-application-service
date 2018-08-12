@@ -73,12 +73,13 @@ articlesModel.getOne = function(id){
 };
 
 //Insert article into database
-articlesModel.insertOne = function(article){
+articlesModel.insertOne = function(article, user){
   const results = q.defer();
   const error = checkArticleError(article);
   if(error){
     results.reject({ status:'error', error:error });
   }
+  // userModel.getOne()
   const articles = Array();
   //Добавляем статью
   if(!error){

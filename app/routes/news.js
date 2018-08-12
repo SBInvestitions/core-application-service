@@ -41,12 +41,13 @@ router.route('/v1/news/:articleId').get(async (req, res) => {
 router.route('/v1/news').post(async (req, res) => {
   try {
     const decoded = req.decoded;
+    const user = decoded.user;
     console.log('decoded = ', decoded);
-    if (!decoded || !decoded.user || decoded.user.role.name !== 'admin' || decoded.user.role.name !== 'redactor') {
+    if (!decoded || !user) {
       return;
     }
     const article = req.body;
-    const articlesData = articlesModel.insertOne(article);
+    const articlesData = articlesModel.insertOne(article, user);
     const response = {};
     response.status = 'success';
     response.data = articlesData;

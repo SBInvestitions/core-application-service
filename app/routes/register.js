@@ -66,7 +66,7 @@ router.route('/v1/register')
                       'birthDate': req.body.birthDate,
                       'email': req.body.email,
                       'password': hash,
-                      'role': Roles[0],
+                      'role': Roles,
                       'confirmed': false,
                     };
                     const newUser = new User(userInfo);
@@ -102,7 +102,7 @@ router.route('/v1/register')
                         delete userInfo.enabled;
                         delete userInfo.birthDate;
                         delete userInfo.surName;
-                        userInfo.role = Roles[0].name;
+                        userInfo.role = Roles;
                         return res.status(201).json({ token: token, user: userInfo });
                       }
                     })
