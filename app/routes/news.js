@@ -79,14 +79,14 @@ router.route('/v1/news').put(async (req, res) => {
   }
 });
 
-router.route('/v1/news/:newsId').delete(async (req, res) => {
+router.route('/v1/news/:articleId').delete(async (req, res) => {
   try {
     const decoded = req.decoded;
     console.log('decoded = ', decoded);
     if (!decoded || !decoded.user || decoded.user.role.name !== 'admin' || decoded.user.role.name !== 'redactor') {
       return;
     }
-    const articleId = req.query.newsId;
+    const articleId = req.query.articleId;
     const articlesData = articlesModel.delete(articleId);
     const response = {};
     response.status = 'success';
