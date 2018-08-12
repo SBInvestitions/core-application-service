@@ -150,7 +150,7 @@ articlesModel.updateOne = function(article) {
           if (err) {
             return console.log(err);
           }
-          console.log('photo file updated')
+          console.log('photo file updated');
           for (const k in article) dbArticle[k] = article[k];
           dbArticle.mainImg = '/uploads/' + resArticle._id + '.jpg';
           dbArticle.authorImg = '/uploads/avatar.jpg';
