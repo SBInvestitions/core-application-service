@@ -35,7 +35,7 @@ router.route('/v1/register')
             res.statusCode = 500;
             return res.send(resultAPI(err, 500, err.message));
           }
-          Role.find({'name': 'User'}, function(err, Roles){
+          Role.find({ 'name': 'User' }, function(err, Roles){
             if (err) {
               res.statusCode = 404;
               log.error('Role not found: %s Группа не найдена',req.body.role);

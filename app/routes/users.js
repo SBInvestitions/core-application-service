@@ -10,7 +10,6 @@ router.use(checkRequest);
     
 router.route('/v1/user')
     .get(function(req, res) {
-      console.log('req.decoded.user.id', req.decoded.user.id);
       User.findById(req.decoded.user.id,{__v: false, password: false })
             .populate({ path: 'role', select: '-__v'})
             .exec(function(err, result) {

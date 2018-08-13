@@ -42,16 +42,21 @@ router.route('/v1/news').post(async (req, res) => {
   try {
     const decoded = req.decoded;
     const user = decoded.user;
-    console.log('decoded = ', decoded);
     if (!decoded || !user) {
       return;
     }
     const article = req.body;
-    const articlesData = articlesModel.insertOne(article, user);
-    const response = {};
-    response.status = 'success';
-    response.data = articlesData;
-    res.send(response);
+    const articlesData = await articlesModel.insertOne(article, user);
+    const { state } = articlesData;
+    if (articlesData && articlesData.state === 'rejected') {
+      res.status(400);
+      res.send(articlesData.reason);
+    } else {
+      const response = {};
+      response.status = 'success';
+      response.data = articlesData;
+      res.send(response);
+    }
   } catch(e) {
     console.log('error while adding single article!', e);
     res.status(500);

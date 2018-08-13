@@ -2,6 +2,8 @@ import mongoose, { Schema } from 'mongoose';
 import q from 'q';
 import fs from 'fs';
 import path from 'path';
+import User from "./user";
+import Role from "./role";
 
 //defining schema for articles table
 
@@ -80,52 +82,84 @@ articlesModel.insertOne = function(article, user){
     results.reject({ status:'error', error:error });
   }
   // userModel.getOne()
-  const articles = Array();
-  //Добавляем статью
-  if(!error){
-    article.authorId = user._id;
-    article.authorAlt = user.name + ' ' + user.secondName;
-    article.authorImg = user.userImg;
-    article.authorFirstName = user.name;
-    article.authorLastName = user.secondName;
-    article.categoryId = '';
-    article.categoryName = '';
-    article.mainImgId = '';
-    article.sequence = '1'; //for long posts to order by this
-    article.ratings = [];
-    article.commentsTreeId = null;
-    article.dateCreate = { type: Date, default: Date.now };
-    article.dateModified = { type: Date, default: Date.now };
-    article.userModified = user._id;
-    article.isDeleted = false;
+  User.findOne({ _id: user.id }, function(userErr, dbUser) {
+    if(userErr){
+      return results.reject({ error: { text: 'User err' + userErr } });
+    }
+    const articles = Array();
+    if (dbUser.role && dbUser.role[0]) {
 
-    articles.push(article);
+      Role.findOne({ _id: dbUser.role[0] }, function(roleErr, dbRole) {
 
-    Article.collection.insert(articles, function(err, dbArticles) {
-      if(err){
-        console.log('error occured in populating database');
-        console.log(err);
-      }
-      else{
-        const resArticle = dbArticles.ops[0];
-        const base64Data = resArticle.mainImg.replace(/^data:image\/jpeg;base64,/, "");
-        fs.writeFile(path.join(__dirname, '../../uploads/' + resArticle._id + '.jpg'), new Buffer(base64Data, "base64"), function(err, data) {
-          if (err) {
-            return console.log(err);
-          }
-          Article.update({_id: resArticle._id }, {
-            mainImg: '/uploads/' + resArticle._id + '.jpg'
-          }, function(error, affected, resp) {
-
-            if(error){
-              return console.log(err);
-            }
-          });
-          results.resolve(Article);
+        Role.findOne({ 'name': 'Admin' }, function (rE, rD) {
+          console.log('rD', rD);
+          /*if (!rD) {
+            Role.collection.insert([{name: 'Admin'}], function (err, dR) {
+              console.log('dR', dR);
+              dbUser.role.push(dR);
+              dbUser.save();
+            })
+          }*/
+          dbUser.role.push(rD._ID);
+          dbUser.save();
         });
-      }
-    });
-  }
+
+
+        //Добавляем статью
+        if(roleErr){
+          return results.reject({ error: { text: 'User role err' + roleErr } });
+        }
+        if (dbRole.name && (dbRole.name !== 'Admin' || dbRole.name !== 'Redactor')) {
+          return results.reject({ error: { text: 'User action not accepted' }});
+        }
+        article.authorId = dbUser._id;
+        article.authorAlt = dbUser.name + ' ' + dbUser.secondName;
+        article.authorImg = dbUser.userImg;
+        article.authorFirstName = dbUser.name;
+        article.authorLastName = dbUser.secondName;
+        article.categoryId = '';
+        article.categoryName = '';
+        article.mainImgId = '';
+        article.sequence = '1'; //for long posts to order by this
+        article.ratings = [];
+        article.commentsTreeId = null;
+        article.dateCreate = { type: Date, default: Date.now };
+        article.dateModified = { type: Date, default: Date.now };
+        article.userModified = dbUser._id;
+        article.isDeleted = false;
+
+        articles.push(article);
+
+        Article.collection.insert(articles, function(err, dbArticles) {
+          if(err){
+            console.log('error occured in populating database');
+            return results.reject(err);
+          }
+          else{
+            const resArticle = dbArticles.ops[0];
+            const base64Data = resArticle.mainImg.replace(/^data:image\/jpeg;base64,/, "");
+            fs.writeFile(path.join(__dirname, '../../uploads/' + resArticle._id + '.jpg'), new Buffer(base64Data, "base64"), function(err, data) {
+              if (err) {
+                return console.log(err);
+              }
+              Article.update({_id: resArticle._id }, {
+                mainImg: '/uploads/' + resArticle._id + '.jpg'
+              }, function(error, affected, resp) {
+
+                if(error){
+                  return console.log(err);
+                }
+              });
+              results.resolve(Article);
+            });
+          }
+        });
+      })
+    } else {
+      return console.log('No roles found');
+    }
+
+  });
   return results.promise;
 };
 
@@ -149,7 +183,7 @@ articlesModel.updateOne = function(article) {
         const base64Data = article.mainImg.replace(/^data:image\/jpeg;base64,/, "");
         fs.writeFile(path.join(__dirname, '../../uploads/' + resArticle._id + '.jpg'), new Buffer(base64Data, "base64"), function (err, data) {
           if (err) {
-            return console.log(err);
+            return results.reject(err);
           }
           console.log('photo file updated');
           for (const k in article) dbArticle[k] = article[k];
@@ -204,17 +238,8 @@ function checkArticleError(article) {
   if (!article.text) {
     return 'Text not supplied.';
   }
-  if (!article.url) {
-    return 'Url not supplied.';
-  }
   if (!article.name) {
     return 'Name not supplied.';
-  }
-  if (!article.authorId) {
-    return 'Author not supplied.';
-  }
-  if (!article.commentsTreeId) {
-    return 'Comments column not supplied.';
   }
   return false;
 }
