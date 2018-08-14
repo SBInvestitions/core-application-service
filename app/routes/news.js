@@ -41,13 +41,11 @@ router.route('/v1/news/:articleId').get(async (req, res) => {
 router.route('/v1/news').post(async (req, res) => {
   try {
     const decoded = req.decoded;
-    const user = decoded.user;
-    if (!decoded || !user) {
+    if (!decoded || !decoded.user) {
       return;
     }
     const article = req.body;
-    const articlesData = await articlesModel.insertOne(article, user);
-    const { state } = articlesData;
+    const articlesData = await articlesModel.insertOne(article, decoded.user);
     if (articlesData && articlesData.state === 'rejected') {
       res.status(400);
       res.send(articlesData.reason);
@@ -68,12 +66,11 @@ router.route('/v1/news').post(async (req, res) => {
 router.route('/v1/news').put(async (req, res) => {
   try {
     const decoded = req.decoded;
-    console.log('decoded = ', decoded);
-    if (!decoded || !decoded.user || decoded.user.role.name !== 'admin' || decoded.user.role.name !== 'redactor') {
+    if (!decoded || !decoded.user) {
       return;
     }
     const article = req.body;
-    const articlesData = articlesModel.updateOne(article);
+    const articlesData = articlesModel.updateOne(article, decoded.user);
     const response = {};
     response.status = 'success';
     response.data = articlesData;

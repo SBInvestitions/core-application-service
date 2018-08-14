@@ -90,26 +90,11 @@ articlesModel.insertOne = function(article, user){
     if (dbUser.role && dbUser.role[0]) {
 
       Role.findOne({ _id: dbUser.role[0] }, function(roleErr, dbRole) {
-
-        Role.findOne({ 'name': 'Admin' }, function (rE, rD) {
-          console.log('rD', rD);
-          /*if (!rD) {
-            Role.collection.insert([{name: 'Admin'}], function (err, dR) {
-              console.log('dR', dR);
-              dbUser.role.push(dR);
-              dbUser.save();
-            })
-          }*/
-          dbUser.role.push(rD._ID);
-          dbUser.save();
-        });
-
-
         //Добавляем статью
         if(roleErr){
           return results.reject({ error: { text: 'User role err' + roleErr } });
         }
-        if (dbRole.name && (dbRole.name !== 'Admin' || dbRole.name !== 'Redactor')) {
+        if (dbRole.name && (dbRole.name !== 'Admin' && dbRole.name !== 'Redactor')) {
           return results.reject({ error: { text: 'User action not accepted' }});
         }
         article.authorId = dbUser._id;
