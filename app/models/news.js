@@ -44,7 +44,7 @@ articlesModel.get = function(skip, limit, isDeleted){
   skip = parseInt(skip) || 0;
   limit = parseInt(limit) || 20;
 
-  Article.find({ 'isDeleted': 'false' }, function(err, dbArticles) {
+  Article.find({ 'isDeleted': 'false' }, null, {sort: '-dateCreate'}, function(err, dbArticles) {
     if (err){
       results.reject(err);
     }
@@ -108,11 +108,11 @@ articlesModel.insertOne = function(article, user){
         article.sequence = '1'; //for long posts to order by this
         article.ratings = [];
         article.commentsTreeId = null;
-        article.dateCreate = { type: Date, default: Date.now };
-        article.dateModified = { type: Date, default: Date.now };
+        article.dateCreate = Date.now();
+        article.dateModified = Date.now();
         article.userModified = dbUser._id;
         article.isDeleted = false;
-
+        delete article.mainImgSrc;
         articles.push(article);
 
         Article.collection.insert(articles, function(err, dbArticles) {
@@ -150,7 +150,7 @@ articlesModel.insertOne = function(article, user){
 
 //update the article
 articlesModel.updateOne = function(article) {
-  const results = q.defer();
+  /*const results = q.defer();
   const error = checkArticleError(article);
 
   if(error){
@@ -193,7 +193,60 @@ articlesModel.updateOne = function(article) {
   else{
     results.reject(err);
   }
-  return results.promise;
+  return results.promise;*/
+  const results = q.defer();
+  const error = checkArticleError(article);
+  if(error){
+    results.reject({ status:'error', error:error });
+  }
+  // userModel.getOne()
+  User.findOne({ _id: user.id }, function(userErr, dbUser) {
+    if (userErr) {
+      return results.reject({error: {text: 'User err' + userErr}});
+    }
+    if (dbUser.role && dbUser.role[0]) {
+
+      Role.findOne({_id: dbUser.role[0]}, function (roleErr, dbRole) {
+        //Добавляем статью
+        if (roleErr) {
+          return results.reject({error: {text: 'User role err' + roleErr}});
+        }
+        if (dbRole.name && (dbRole.name !== 'Admin' && dbRole.name !== 'Redactor')) {
+          return results.reject({error: {text: 'User action not accepted'}});
+        }
+        Article.findOne({_id: article._id}, function (err, dbArticle) {
+          if (err) {
+            return results.reject(err);
+          }
+          const resArticle = dbArticle;
+          if(article.mainImg.indexOf('https://sbinvest.pro/uploads/') == -1){
+            const base64Data = article.mainImg.replace(/^data:image\/jpeg;base64,/, "");
+            fs.writeFile(path.join(__dirname, '../../uploads/' + resArticle._id + '.jpg'), new Buffer(base64Data, "base64"), function (err, data) {
+              if (err) {
+                return results.reject(err);
+              }
+              console.log('photo file updated');
+              for (const k in article) dbArticle[k] = article[k];
+              dbArticle.mainImg = '/uploads/' + resArticle._id + '.jpg';
+              dbArticle.authorImg = '/uploads/avatar.jpg';
+              dbArticle.dateModified = Date.now();
+              dbArticle.save();
+              results.resolve(dbArticle);
+            });
+          }
+          else{
+            console.log('photo file norm');
+            for (const k in article) dbArticle[k] = article[k];
+            dbArticle.authorImg = '/uploads/avatar.jpg';
+            dbArticle.dateModified = new Date;
+            dbArticle.save();
+            results.resolve(dbArticle);
+          }
+
+        });
+      })
+    }
+  });
 };
 
 // delete article
