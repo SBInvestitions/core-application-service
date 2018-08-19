@@ -86,7 +86,7 @@ articlesModel.insertOne = function(article, user){
     if(userErr){
       return results.reject({ error: { text: 'User err' + userErr } });
     }
-    const articles = Array();
+    const articles = [];
     if (dbUser.role && dbUser.role[0]) {
 
       Role.findOne({ _id: dbUser.role[0] }, function(roleErr, dbRole) {
@@ -113,6 +113,7 @@ articlesModel.insertOne = function(article, user){
         article.userModified = dbUser._id;
         article.isDeleted = false;
         delete article.mainImgSrc;
+        console.log('now', Date.now());
         articles.push(article);
 
         Article.collection.insert(articles, function(err, dbArticles) {
@@ -127,10 +128,9 @@ articlesModel.insertOne = function(article, user){
               if (err) {
                 return console.log(err);
               }
-              Article.update({_id: resArticle._id }, {
+              Article.update({ _id: resArticle._id }, {
                 mainImg: '/uploads/' + resArticle._id + '.jpg'
               }, function(error, affected, resp) {
-
                 if(error){
                   return console.log(err);
                 }
@@ -225,7 +225,6 @@ articlesModel.updateOne = function(article) {
               if (err) {
                 return results.reject(err);
               }
-              console.log('photo file updated');
               for (const k in article) dbArticle[k] = article[k];
               dbArticle.mainImg = '/uploads/' + resArticle._id + '.jpg';
               dbArticle.authorImg = '/uploads/avatar.jpg';
@@ -235,10 +234,9 @@ articlesModel.updateOne = function(article) {
             });
           }
           else{
-            console.log('photo file norm');
+            console.log('photo file is normal');
             for (const k in article) dbArticle[k] = article[k];
-            dbArticle.authorImg = '/uploads/avatar.jpg';
-            dbArticle.dateModified = new Date;
+            dbArticle.dateModified = Date.now();
             dbArticle.save();
             results.resolve(dbArticle);
           }
@@ -247,6 +245,7 @@ articlesModel.updateOne = function(article) {
       })
     }
   });
+  return results.promise;
 };
 
 // delete article
@@ -258,15 +257,28 @@ articlesModel.delete = function(articleId){
     error = true;
   }
   if(!error){
-    console.log(articleId);
-    Article.findOne({ _id:articleId }, function(err, dbArticle) {
-      if (err){
-        results.reject(err);
+  User.findOne({ _id: user.id }, function(userErr, dbUser) {
+    if (userErr) {
+      return results.reject({error: {text: 'User err' + userErr}});
+    }
+    Role.findOne({_id: dbUser.role[0]}, function (roleErr, dbRole) {
+      //Добавляем статью
+      if (roleErr) {
+        return results.reject({error: {text: 'User role err' + roleErr}});
       }
-      dbArticle.isDeleted = true;
-      dbArticle.remove();
-      results.resolve(dbArticle);
-    });
+      if (dbRole.name && (dbRole.name !== 'Admin' && dbRole.name !== 'Redactor')) {
+        return results.reject({error: {text: 'User action not accepted'}});
+      }
+      Article.findOne({ _id: articleId }, function(err, dbArticle) {
+        if (err){
+          results.reject(err);
+        }
+        dbArticle.isDeleted = true;
+        dbArticle.remove();
+        results.resolve(dbArticle);
+      });
+    })
+  });
   }
   return results.promise;
 };
