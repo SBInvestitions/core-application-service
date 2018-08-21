@@ -24,7 +24,8 @@ router.route('/v1/news').get(async (req, res) => {
 // controller that handles single article fetch request.
 router.route('/v1/news/:articleId').get(async (req, res) => {
   try {
-    const articleId = req.query.articleId;
+    const articleId = req.params.articleId;
+    console.log('articleId', articleId);
     const articleData = await articlesModel.getOne(articleId);
     const response = {};
     response.status = 'success';
@@ -90,7 +91,7 @@ router.route('/v1/news/:articleId').delete(async (req, res) => {
       return;
     }
     const articleId = req.query.articleId;
-    const articlesData = articlesModel.delete(articleId);
+    const articlesData = articlesModel.delete(articleId, decoded.user);
     const response = {};
     response.status = 'success';
     response.data = articlesData;

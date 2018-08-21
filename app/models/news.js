@@ -44,7 +44,7 @@ articlesModel.get = function(skip, limit, isDeleted){
   skip = parseInt(skip) || 0;
   limit = parseInt(limit) || 20;
 
-  Article.find({ 'isDeleted': 'false' }, null, {sort: '-dateCreate'}, function(err, dbArticles) {
+  Article.find({ 'isDeleted': 'false' }, null, { sort: '-dateCreate' }, function(err, dbArticles) {
     if (err){
       results.reject(err);
     }
@@ -149,51 +149,7 @@ articlesModel.insertOne = function(article, user){
 };
 
 //update the article
-articlesModel.updateOne = function(article) {
-  /*const results = q.defer();
-  const error = checkArticleError(article);
-
-  if(error){
-    results.reject({ status:'error', error:error });
-  }
-
-  //Обновляем статью
-  if(!error) {
-    Article.findOne({_id: article._id}, function (err, dbArticle) {
-      if (err) {
-        return results.reject(err);
-      }
-      const resArticle = dbArticle;
-      if(article.mainImg.indexOf('https://sbinvest.pro/uploads/') == -1){
-        const base64Data = article.mainImg.replace(/^data:image\/jpeg;base64,/, "");
-        fs.writeFile(path.join(__dirname, '../../uploads/' + resArticle._id + '.jpg'), new Buffer(base64Data, "base64"), function (err, data) {
-          if (err) {
-            return results.reject(err);
-          }
-          console.log('photo file updated');
-          for (const k in article) dbArticle[k] = article[k];
-          dbArticle.mainImg = '/uploads/' + resArticle._id + '.jpg';
-          dbArticle.authorImg = '/uploads/avatar.jpg';
-          dbArticle.dateModified = new Date;
-          dbArticle.save();
-          results.resolve(dbArticle);
-        });
-      }
-      else{
-        console.log('photo file norm');
-        for (const k in article) dbArticle[k] = article[k];
-        dbArticle.authorImg = '/uploads/avatar.jpg';
-        dbArticle.dateModified = new Date;
-        dbArticle.save();
-        results.resolve(dbArticle);
-      }
-
-    });
-  }
-  else{
-    results.reject(err);
-  }
-  return results.promise;*/
+articlesModel.updateOne = function(article, user) {
   const results = q.defer();
   const error = checkArticleError(article);
   if(error){
@@ -214,7 +170,8 @@ articlesModel.updateOne = function(article) {
         if (dbRole.name && (dbRole.name !== 'Admin' && dbRole.name !== 'Redactor')) {
           return results.reject({error: {text: 'User action not accepted'}});
         }
-        Article.findOne({_id: article._id}, function (err, dbArticle) {
+
+        Article.findOne({ _id: article._id }, function (err, dbArticle) {
           if (err) {
             return results.reject(err);
           }
@@ -249,36 +206,36 @@ articlesModel.updateOne = function(article) {
 };
 
 // delete article
-articlesModel.delete = function(articleId){
+articlesModel.delete = function(articleId, user){
   const results = q.defer();
   let error = false;
   if(!articleId){
     results.reject({ status:'error', error:error });
     error = true;
   }
-  if(!error){
-  User.findOne({ _id: user.id }, function(userErr, dbUser) {
-    if (userErr) {
-      return results.reject({error: {text: 'User err' + userErr}});
-    }
-    Role.findOne({_id: dbUser.role[0]}, function (roleErr, dbRole) {
-      //Добавляем статью
-      if (roleErr) {
-        return results.reject({error: {text: 'User role err' + roleErr}});
+  if (!error) {
+    User.findOne({ _id: user.id }, function(userErr, dbUser) {
+      if (userErr) {
+        return results.reject({error: {text: 'User err' + userErr}});
       }
-      if (dbRole.name && (dbRole.name !== 'Admin' && dbRole.name !== 'Redactor')) {
-        return results.reject({error: {text: 'User action not accepted'}});
-      }
-      Article.findOne({ _id: articleId }, function(err, dbArticle) {
-        if (err){
-          results.reject(err);
+      Role.findOne({_id: dbUser.role[0]}, function (roleErr, dbRole) {
+        //Добавляем статью
+        if (roleErr) {
+          return results.reject({error: {text: 'User role err' + roleErr}});
         }
-        dbArticle.isDeleted = true;
-        dbArticle.remove();
-        results.resolve(dbArticle);
-      });
-    })
-  });
+        if (dbRole.name && (dbRole.name !== 'Admin' && dbRole.name !== 'Redactor')) {
+          return results.reject({error: {text: 'User action not accepted'}});
+        }
+        Article.findOne({ _id: articleId }, function(err, dbArticle) {
+          if (err){
+            results.reject(err);
+          }
+          dbArticle.isDeleted = true;
+          dbArticle.remove();
+          results.resolve(dbArticle);
+        });
+      })
+    });
   }
   return results.promise;
 };

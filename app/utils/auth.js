@@ -25,15 +25,24 @@ export function checkRequest(req, res, next) {
         });
 
     } else {
-        // if there is no token
-        if (req.url === '/v1/subscribe') {
+        switch (req.url) {
+          case '/v1/subscribe':
+              next();
+              break;
+          case '/v1/news':
             next();
-        } else {
-            // return an error
-            return res.status(401).send({
+            break;
+          default:
+            // for single article
+            if (req.url.indexOf('/v1/news/') !== -1){
+              next();
+            } else {
+              // return an error
+              return res.status(401).send({
                 success: false,
                 message: 'No token provided.'
-            });
+              });
+            }
         }
     }
 
