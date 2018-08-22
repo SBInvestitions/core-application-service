@@ -87,10 +87,10 @@ router.route('/v1/news/:articleId').delete(async (req, res) => {
   try {
     const decoded = req.decoded;
     console.log('decoded = ', decoded);
-    if (!decoded || !decoded.user || decoded.user.role.name !== 'admin' || decoded.user.role.name !== 'redactor') {
+    if (!decoded || !decoded.user) {
       return;
     }
-    const articleId = req.query.articleId;
+    const articleId = req.params.articleId;
     const articlesData = articlesModel.delete(articleId, decoded.user);
     const response = {};
     response.status = 'success';
