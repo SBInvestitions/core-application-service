@@ -113,7 +113,6 @@ articlesModel.insertOne = function(article, user){
         article.userModified = dbUser._id;
         article.isDeleted = false;
         delete article.mainImgSrc;
-        console.log('now', Date.now());
         articles.push(article);
 
         Article.collection.insert(articles, function(err, dbArticles) {
